@@ -1,0 +1,704 @@
+
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-sans,sans-serif);color:var(--color-text-primary)}
+  .wrap{padding:1.5rem 0}
+  .nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem}
+  .nav button{font-size:12px;padding:6px 12px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+  .nav button.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:transparent}
+  .section{display:none}.section.active{display:block}
+  .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+  .metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:0.75rem 1rem;text-align:center}
+  .metric .val{font-size:22px;font-weight:500;margin-top:4px}
+  .metric .lbl{font-size:12px;color:var(--color-text-secondary)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .up{color:#16a34a}.down{color:#dc2626}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+  .tag-green{background:#dcfce7;color:#166534}.tag-red{background:#fee2e2;color:#991b1b}
+  .tag-blue{background:#dbeafe;color:#1e40af}.tag-amber{background:#fef3c7;color:#92400e}
+  p{line-height:1.6;font-size:14px;color:var(--color-text-secondary);margin-bottom:0.75rem}
+  h3{font-size:16px;font-weight:500;margin-bottom:0.5rem}
+  h4{font-size:14px;font-weight:500;margin-bottom:0.25rem}
+  .emoji-big{font-size:28px;display:block;margin-bottom:6px}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .bar{height:8px;border-radius:4px;transition:width .3s}
+  .slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}
+  canvas{display:block}
+  .tick{font-size:11px;fill:var(--color-text-secondary)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--color-text-secondary);margin-top:6px}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .legend b{width:10px;height:10px;border-radius:2px;display:inline-block}
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .story-box{border-left:3px solid var(--color-border-secondary);padding:8px 12px;margin:10px 0;font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+  .quiz-opt{display:block;width:100%;text-align:left;padding:8px 12px;margin:5px 0;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);cursor:pointer;font-size:13px;transition:all .15s}
+  .quiz-opt:hover{border-color:var(--color-border-primary)}
+  .quiz-opt.correct{background:#dcfce7;border-color:#16a34a;color:#166534}
+  .quiz-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+  .ticker-wrap{overflow:hidden;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 0;margin-bottom:1rem;background:var(--color-background-secondary)}
+  .ticker-inner{display:flex;gap:32px;animation:scroll 18s linear infinite;width:max-content;padding:0 1rem}
+  @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  .ticker-item{font-size:13px;white-space:nowrap}
+  .candle{cursor:pointer}
+  .tooltip{position:absolute;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:6px 10px;font-size:12px;pointer-events:none;display:none;z-index:10;color:var(--color-text-primary)}
+  .chart-wrap{position:relative}
+  table{width:100%;font-size:13px;border-collapse:collapse}
+  td,th{padding:6px 8px;text-align:left;border-bottom:0.5px solid var(--color-border-tertiary)}
+  th{font-weight:500;font-size:12px;color:var(--color-text-secondary)}
+  .progress-dots{display:flex;gap:6px;justify-content:center;margin-bottom:1rem}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--color-border-secondary)}
+  .dot.active{background:var(--color-text-primary)}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Interactive stock market guide for beginners, covering basics, how trading works, charts, and key concepts</h2>
+
+<!-- Live ticker -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span class="ticker-item">RELIANCE <span class="up">▲ 2.3%</span></span>
+    <span class="ticker-item">TCS <span class="down">▼ 0.8%</span></span>
+    <span class="ticker-item">INFY <span class="up">▲ 1.1%</span></span>
+    <span class="ticker-item">HDFC <span class="up">▲ 0.5%</span></span>
+    <span class="ticker-item">WIPRO <span class="down">▼ 1.4%</span></span>
+    <span class="ticker-item">BAJAJ <span class="up">▲ 3.1%</span></span>
+    <span class="ticker-item">NIFTY 50 <span class="up">▲ 0.9%</span></span>
+    <span class="ticker-item">SENSEX <span class="up">▲ 0.7%</span></span>
+    <span class="ticker-item">RELIANCE <span class="up">▲ 2.3%</span></span>
+    <span class="ticker-item">TCS <span class="down">▼ 0.8%</span></span>
+    <span class="ticker-item">INFY <span class="up">▲ 1.1%</span></span>
+    <span class="ticker-item">HDFC <span class="up">▲ 0.5%</span></span>
+    <span class="ticker-item">WIPRO <span class="down">▼ 1.4%</span></span>
+    <span class="ticker-item">BAJAJ <span class="up">▲ 3.1%</span></span>
+    <span class="ticker-item">NIFTY 50 <span class="up">▲ 0.9%</span></span>
+  </div>
+</div>
+
+<!-- Nav -->
+<div class="nav">
+  <button class="active" onclick="show('basics')">1. What is a Stock?</button>
+  <button onclick="show('market')">2. The Market</button>
+  <button onclick="show('price')">3. Why Prices Move</button>
+  <button onclick="show('charts')">4. Reading Charts</button>
+  <button onclick="show('types')">5. Bull & Bear</button>
+  <button onclick="show('concepts')">6. Key Numbers</button>
+  <button onclick="show('quiz')">7. Quick Quiz</button>
+</div>
+
+<!-- SECTION 1: BASICS -->
+<div class="section active" id="sec-basics">
+  <div class="card">
+    <span class="emoji-big">🏪</span>
+    <h3>Imagine you and your friends open a pizza shop</h3>
+    <p>You need ₹10,00,000 to start — buy ovens, tables, staff. You have ₹2,00,000. What do you do?</p>
+    <p>You ask 8 friends to invest. Each gives ₹1,00,000. In return, each friend gets a <strong>share</strong> — a small piece of ownership in your pizza shop.</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h4>You own 20%</h4>
+      <p>Because you put in ₹2L out of ₹10L. If the shop earns ₹1L profit, you get ₹20,000.</p>
+    </div>
+    <div class="card">
+      <h4>Each friend owns 10%</h4>
+      <p>Put in ₹1L each. If the shop earns ₹1L profit, they each get ₹10,000.</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>That's exactly what a stock is</h3>
+    <p>When a big company like Reliance or TCS needs money to grow, they sell small pieces of ownership to the public. Each piece is called a <span class="tag tag-blue">stock</span> or <span class="tag tag-blue">share</span>. You buy it → you own a tiny part of that company.</p>
+    <div class="story-box">
+      <strong>Real example:</strong> Infosys has about 415 crore shares outstanding. If you buy 1 share at ~₹1,500, you own 1/41,50,00,00,000 of Infosys. Small, but real ownership!
+    </div>
+  </div>
+  <div class="card">
+    <h3>Why would a company give away ownership?</h3>
+    <div class="row">🔧 <span style="font-size:13px;color:var(--color-text-secondary)">To get money for building new factories, products, offices</span></div>
+    <div class="row">🌍 <span style="font-size:13px;color:var(--color-text-secondary)">To expand to new cities or countries</span></div>
+    <div class="row">💰 <span style="font-size:13px;color:var(--color-text-secondary)">To repay loans without paying interest</span></div>
+    <div class="row">⭐ <span style="font-size:13px;color:var(--color-text-secondary)">To become famous and trusted (being "listed" is prestigious)</span></div>
+  </div>
+  <div class="card">
+    <h3>Two ways to make money from stocks</h3>
+    <div class="grid2">
+      <div>
+        <h4>📈 Price goes up (Capital Gain)</h4>
+        <p>Buy at ₹100, sell at ₹150 → profit ₹50</p>
+      </div>
+      <div>
+        <h4>💵 Dividends</h4>
+        <p>Company shares profit with you every year, even if you don't sell</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: THE MARKET -->
+<div class="section" id="sec-market">
+  <div class="card">
+    <span class="emoji-big">🏛️</span>
+    <h3>The stock market is like a giant bazaar</h3>
+    <p>Thousands of buyers and sellers meet (digitally today) to buy and sell shares. In India, this bazaar has two main addresses:</p>
+    <div class="grid2" style="margin-top:10px">
+      <div class="metric"><div class="lbl">Bombay Stock Exchange</div><div class="val" style="font-size:16px">BSE</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px">Est. 1875 · Asia's oldest</div></div>
+      <div class="metric"><div class="lbl">National Stock Exchange</div><div class="val" style="font-size:16px">NSE</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px">Est. 1992 · Highest volume</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>How a trade actually happens</h3>
+    <div style="margin:10px 0">
+      <div class="row">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0">1</div>
+        <span style="font-size:13px;color:var(--color-text-secondary)">You open Zerodha / Groww / Upstox app and place a <strong>buy order</strong> for 10 shares of TCS at ₹3,500</span>
+      </div>
+      <div class="row">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0">2</div>
+        <span style="font-size:13px;color:var(--color-text-secondary)">Your broker sends the order to NSE/BSE electronically</span>
+      </div>
+      <div class="row">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0">3</div>
+        <span style="font-size:13px;color:var(--color-text-secondary)">NSE's computer finds someone willing to <strong>sell</strong> 10 TCS shares at ₹3,500</span>
+      </div>
+      <div class="row">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0">4</div>
+        <span style="font-size:13px;color:var(--color-text-secondary)">Trade is matched in milliseconds! Shares move to your Demat account in T+1 day</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Market hours (India)</h3>
+    <table>
+      <tr><th>Session</th><th>Time</th><th>What happens</th></tr>
+      <tr><td>Pre-open</td><td>9:00 – 9:15 AM</td><td>Orders collected, opening price set</td></tr>
+      <tr><td><span class="tag tag-green">Regular trading</span></td><td>9:15 – 3:30 PM</td><td>Buy & sell freely</td></tr>
+      <tr><td>Closing</td><td>3:30 – 3:40 PM</td><td>Closing price calculated</td></tr>
+      <tr><td>After-hours</td><td>Closed</td><td>No trades, but news still affects tomorrow</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>What is an Index? (SENSEX, NIFTY)</h3>
+    <p>You can't track 5,000 companies daily. So we track a sample — a basket of the biggest, most important companies. Their average is the "index".</p>
+    <div class="grid2">
+      <div style="padding:10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md)">
+        <h4>SENSEX</h4>
+        <p>Top 30 companies on BSE. If SENSEX is up 1%, those 30 companies are worth ~1% more on average.</p>
+      </div>
+      <div style="padding:10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md)">
+        <h4>NIFTY 50</h4>
+        <p>Top 50 companies on NSE. More diversified. Most traders watch this.</p>
+      </div>
+    </div>
+    <div class="story-box" style="margin-top:10px">
+      Think of it like a cricket team's average score. If the team average rises, the team is doing well — even if some players scored 0.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: WHY PRICES MOVE -->
+<div class="section" id="sec-price">
+  <div class="card">
+    <h3>Price = what someone is willing to pay right now</h3>
+    <p>There's no "correct" price for a stock. It's purely what buyers and sellers agree on at any moment. Like an auction.</p>
+  </div>
+
+  <div class="card">
+    <h3>The demand-supply seesaw</h3>
+    <p>Play with the slider to see how demand vs supply sets price:</p>
+    <div class="slider-row">
+      <span>More sellers</span>
+      <input type="range" id="ds-slider" min="0" max="100" value="50" style="flex:1" oninput="updateDS()">
+      <span>More buyers</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">Stock price</div>
+        <div id="ds-price" style="font-size:24px;font-weight:500">₹100</div>
+        <div id="ds-arrow" style="font-size:18px">→</div>
+      </div>
+      <div style="flex:1">
+        <div id="ds-msg" style="font-size:13px;color:var(--color-text-secondary);line-height:1.5"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>What makes more people want to buy?</h3>
+    <div style="margin-top:6px">
+      <div class="row">✅ <span style="font-size:13px;color:var(--color-text-secondary)">Company announces huge profits</span></div>
+      <div class="row">✅ <span style="font-size:13px;color:var(--color-text-secondary)">New product launch / big contract won</span></div>
+      <div class="row">✅ <span style="font-size:13px;color:var(--color-text-secondary)">Government policy helps their industry</span></div>
+      <div class="row">✅ <span style="font-size:13px;color:var(--color-text-secondary)">Economy is growing fast, low interest rates</span></div>
+      <div class="row">✅ <span style="font-size:13px;color:var(--color-text-secondary)">Famous investor buys large stake</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>What makes more people want to sell?</h3>
+    <div style="margin-top:6px">
+      <div class="row">❌ <span style="font-size:13px;color:var(--color-text-secondary)">Company misses profit expectations</span></div>
+      <div class="row">❌ <span style="font-size:13px;color:var(--color-text-secondary)">Scandal, fraud, CEO resigns suddenly</span></div>
+      <div class="row">❌ <span style="font-size:13px;color:var(--color-text-secondary)">Competitor launches better product</span></div>
+      <div class="row">❌ <span style="font-size:13px;color:var(--color-text-secondary)">RBI raises interest rates (money gets expensive)</span></div>
+      <div class="row">❌ <span style="font-size:13px;color:var(--color-text-secondary)">War, pandemic, natural disaster</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Psychology matters too — massively</h3>
+    <p>Sometimes stocks move not because of facts, but because people <em>feel</em> scared or excited. This is called <span class="tag tag-amber">market sentiment</span>. Fear can crash a stock even if the company is fine. Greed can pump a stock beyond its real value.</p>
+    <div class="story-box">Example: In 2020, Zoom's stock rose 500% because people were excited about video calls during COVID, even though the company wasn't worth that much.</div>
+  </div>
+</div>
+
+<!-- SECTION 4: CHARTS -->
+<div class="section" id="sec-charts">
+  <div class="card">
+    <h3>The line chart — simplest</h3>
+    <p>Shows closing price over time. Zoom in/out. Great for spotting trends.</p>
+    <div class="chart-wrap" style="margin-top:10px">
+      <canvas id="lineChart" height="180"></canvas>
+    </div>
+    <div class="legend">
+      <span><b style="background:#3266ad"></b>Price (₹)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>The candlestick chart — the real deal</h3>
+    <p>Every candle = 1 day. Click any candle to see details.</p>
+    <div id="candle-tooltip" class="tooltip"></div>
+    <div class="chart-wrap" style="margin-top:10px">
+      <canvas id="candleChart" height="200"></canvas>
+    </div>
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="font-size:12px;color:var(--color-text-secondary);padding:8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px">
+        <div style="color:#16a34a;font-weight:500;margin-bottom:4px">🟢 Green candle</div>
+        Price went UP that day. Open was lower, Close was higher. Body = day's range.
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);padding:8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px">
+        <div style="color:#dc2626;font-weight:500;margin-bottom:4px">🔴 Red candle</div>
+        Price went DOWN that day. Open was higher, Close was lower. Body = day's range.
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <div id="candle-info" style="font-size:13px;color:var(--color-text-secondary);padding:8px;background:var(--color-background-secondary);border-radius:6px;text-align:center">👆 Click a candle above to see its O/H/L/C</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>The wick (shadow) explained</h3>
+    <svg width="100%" viewBox="0 0 620 120" style="overflow:visible">
+      <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#73726c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <!-- Green candle -->
+      <line x1="200" y1="20" x2="200" y2="40" stroke="#16a34a" stroke-width="2"/>
+      <rect x="182" y="40" width="36" height="40" fill="#16a34a" rx="2"/>
+      <line x1="200" y1="80" x2="200" y2="105" stroke="#16a34a" stroke-width="2"/>
+      <!-- Labels -->
+      <line x1="240" y1="20" x2="300" y2="20" stroke="#73726c" stroke-width="0.5" stroke-dasharray="3 3"/>
+      <text x="305" y="24" font-size="11" fill="#73726c">HIGH (day's highest price)</text>
+      <line x1="240" y1="40" x2="300" y2="40" stroke="#73726c" stroke-width="0.5" stroke-dasharray="3 3"/>
+      <text x="305" y="44" font-size="11" fill="#73726c">CLOSE (price at 3:30pm) — green = close &gt; open</text>
+      <line x1="240" y1="80" x2="300" y2="80" stroke="#73726c" stroke-width="0.5" stroke-dasharray="3 3"/>
+      <text x="305" y="84" font-size="11" fill="#73726c">OPEN (price at 9:15am)</text>
+      <line x1="240" y1="105" x2="300" y2="105" stroke="#73726c" stroke-width="0.5" stroke-dasharray="3 3"/>
+      <text x="305" y="109" font-size="11" fill="#73726c">LOW (day's lowest price)</text>
+      <!-- Brace labels -->
+      <text x="130" y="32" font-size="10" fill="#73726c" text-anchor="middle">Upper wick</text>
+      <text x="130" y="95" font-size="10" fill="#73726c" text-anchor="middle">Lower wick</text>
+      <text x="130" y="62" font-size="10" fill="#16a34a" text-anchor="middle">Body</text>
+    </svg>
+  </div>
+
+  <div class="card">
+    <h3>Volume — how much was traded</h3>
+    <p>Volume bars below the chart show <em>how many shares</em> changed hands that day. High volume + price rise = strong move. Low volume = uncertain/weak move.</p>
+    <div class="chart-wrap">
+      <canvas id="volChart" height="100"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Support &amp; Resistance — the two magic lines</h3>
+    <div class="grid2">
+      <div>
+        <h4 style="color:#16a34a">Support level 🛡️</h4>
+        <p>A price where the stock keeps "bouncing up" when it falls to that level. Think of it as a floor.</p>
+      </div>
+      <div>
+        <h4 style="color:#dc2626">Resistance level 🧱</h4>
+        <p>A price where the stock keeps "bouncing down" when it rises to that level. Think of it as a ceiling.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: BULL & BEAR -->
+<div class="section" id="sec-types">
+  <div class="grid2">
+    <div class="card" style="text-align:center">
+      <div style="font-size:40px">🐂</div>
+      <h3 style="color:#16a34a">Bull Market</h3>
+      <p>Prices are rising. Everyone is optimistic. Economy growing. People are buying more.</p>
+      <div class="tag tag-green">Prices up 20%+</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:40px">🐻</div>
+      <h3 style="color:#dc2626">Bear Market</h3>
+      <p>Prices are falling. Fear is everywhere. Economy slowing. People are selling.</p>
+      <div class="tag tag-red">Prices down 20%+</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Why these animals?</h3>
+    <p>A bull attacks by thrusting its horns <strong>upward</strong> → prices go up. A bear attacks by swiping its paws <strong>downward</strong> → prices go down. Simple visual memory trick.</p>
+  </div>
+
+  <div class="card">
+    <h3>Market cycle — what usually happens</h3>
+    <canvas id="cycleChart" height="160"></canvas>
+    <div style="margin-top:8px;font-size:12px;color:var(--color-text-secondary);line-height:1.6">The market moves in cycles. After every crash (bear), there has historically always been a recovery and new highs (bull). The trick is not to panic-sell at the bottom.</div>
+  </div>
+
+  <div class="card">
+    <h3>Other market moods</h3>
+    <table>
+      <tr><th>Term</th><th>Meaning</th></tr>
+      <tr><td><span class="tag tag-red">Crash</span></td><td>Very sudden, sharp drop (10%+ in days)</td></tr>
+      <tr><td><span class="tag tag-amber">Correction</span></td><td>10–20% drop, normal and healthy</td></tr>
+      <tr><td><span class="tag tag-blue">Sideways / Ranging</span></td><td>Prices bouncing between support &amp; resistance — no clear direction</td></tr>
+      <tr><td><span class="tag tag-green">Rally</span></td><td>Sharp price rise, often after bad news passes</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Circuit breakers — market's safety valve</h3>
+    <p>If NIFTY falls more than 10% in a day, NSE pauses trading for 45 minutes. At 15%, pause is 1 hour 45 min. At 20%, market closes for the day. This prevents panic from spiraling.</p>
+  </div>
+</div>
+
+<!-- SECTION 6: KEY NUMBERS -->
+<div class="section" id="sec-concepts">
+  <div class="card">
+    <h3>Market Capitalisation (Market Cap)</h3>
+    <p>Total value of a company = Share price × Total number of shares</p>
+    <div class="story-box">TCS price ≈ ₹3,500 × 365 crore shares = ₹12,77,500 crore market cap. That's the market's verdict on what TCS is "worth".</div>
+    <div class="grid3" style="margin-top:10px">
+      <div class="metric"><div class="lbl">Large Cap</div><div class="val" style="font-size:14px;color:#16a34a">&gt; ₹20,000 Cr</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Stable, safe</div></div>
+      <div class="metric"><div class="lbl">Mid Cap</div><div class="val" style="font-size:14px;color:#d97706">₹5K–20K Cr</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Moderate risk</div></div>
+      <div class="metric"><div class="lbl">Small Cap</div><div class="val" style="font-size:14px;color:#dc2626">&lt; ₹5,000 Cr</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">High risk/reward</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>P/E Ratio — is it expensive?</h3>
+    <p><strong>P/E = Share Price ÷ Earnings Per Share</strong></p>
+    <p>Tells you: "For every ₹1 the company earns, how much are you paying?"</p>
+    <div class="slider-row">
+      <span style="min-width:60px">Price: <span id="pe-price-val">₹500</span></span>
+      <input type="range" id="pe-price" min="100" max="2000" value="500" style="flex:1" oninput="updatePE()">
+    </div>
+    <div class="slider-row">
+      <span style="min-width:60px">EPS: <span id="pe-eps-val">₹25</span></span>
+      <input type="range" id="pe-eps" min="1" max="100" value="25" style="flex:1" oninput="updatePE()">
+    </div>
+    <div style="margin-top:10px;padding:10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+      <span style="font-size:13px;color:var(--color-text-secondary)">P/E Ratio: </span><span id="pe-val" style="font-size:22px;font-weight:500">20</span>
+      <div id="pe-comment" style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">Average valuation</div>
+    </div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-top:8px">P/E below 15 = cheap; 15–25 = fair; above 25 = expensive (or fast-growing)</div>
+  </div>
+
+  <div class="card">
+    <h3>Dividend — passive income from stocks</h3>
+    <p>Companies share a portion of profits with shareholders. Example: HDFC Bank pays ₹19.50 per share as dividend each year. Own 100 shares → get ₹1,950/year just for holding!</p>
+    <div class="grid2" style="margin-top:8px">
+      <div class="metric"><div class="lbl">Dividend Yield</div><div class="val" style="font-size:16px">Dividend ÷ Price</div></div>
+      <div class="metric"><div class="lbl">Example</div><div class="val" style="font-size:16px">₹20 ÷ ₹500 = 4%</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>52-week High / Low</h3>
+    <p>The highest and lowest price a stock has traded at in the past year. Useful to see where you are in the range.</p>
+    <div style="margin:12px 0">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px"><span>52W Low: ₹820</span><span>Current: ₹1,150</span><span>52W High: ₹1,400</span></div>
+      <div style="background:var(--color-background-secondary);height:10px;border-radius:5px;position:relative">
+        <div style="position:absolute;left:0;top:0;height:100%;width:24%;background:#dc2626;border-radius:5px 0 0 5px"></div>
+        <div style="position:absolute;left:24%;top:0;height:100%;width:37%;background:#16a34a"></div>
+        <div style="position:absolute;left:24%;top:-3px;width:4px;height:16px;background:#16a34a;border-radius:2px"></div>
+        <div style="position:absolute;left:57%;top:-4px;width:3px;height:18px;background:var(--color-text-primary);border-radius:2px"></div>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;text-align:center">Current price is at 57% of the 52-week range</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Key terms cheat sheet</h3>
+    <table>
+      <tr><th>Term</th><th>Meaning</th></tr>
+      <tr><td><span class="tag tag-blue">IPO</span></td><td>First time company sells shares to public</td></tr>
+      <tr><td><span class="tag tag-blue">Demat Account</span></td><td>Your digital locker where shares are stored</td></tr>
+      <tr><td><span class="tag tag-blue">Portfolio</span></td><td>All the stocks you own together</td></tr>
+      <tr><td><span class="tag tag-blue">Broker</span></td><td>Middleman (Zerodha, Groww) who executes trades</td></tr>
+      <tr><td><span class="tag tag-amber">SEBI</span></td><td>India's stock market regulator/police</td></tr>
+      <tr><td><span class="tag tag-amber">FII / FPI</span></td><td>Foreign investors buying Indian stocks</td></tr>
+      <tr><td><span class="tag tag-green">Delivery</span></td><td>Buy and hold for more than 1 day</td></tr>
+      <tr><td><span class="tag tag-red">Intraday</span></td><td>Buy and sell within the same day</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 7: QUIZ -->
+<div class="section" id="sec-quiz">
+  <div id="quiz-container"></div>
+</div>
+
+</div><!-- /wrap -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// NAV
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'charts') setTimeout(initCharts, 50);
+  if (id === 'types') setTimeout(initCycle, 50);
+  if (id === 'quiz') setTimeout(initQuiz, 50);
+}
+
+// D/S SLIDER
+function updateDS() {
+  const v = parseInt(document.getElementById('ds-slider').value);
+  const base = 100;
+  const price = Math.round(base * (0.5 + v/100));
+  const el = document.getElementById('ds-price');
+  const msg = document.getElementById('ds-msg');
+  const arr = document.getElementById('ds-arrow');
+  el.textContent = '₹' + price;
+  if (v > 60) {
+    el.style.color = '#16a34a';
+    arr.textContent = '📈 Price rising';
+    msg.textContent = 'More buyers than sellers → each buyer bids higher to get shares → price goes up';
+  } else if (v < 40) {
+    el.style.color = '#dc2626';
+    arr.textContent = '📉 Price falling';
+    msg.textContent = 'More sellers than buyers → sellers lower price to attract buyers → price goes down';
+  } else {
+    el.style.color = 'var(--color-text-primary)';
+    arr.textContent = '→ Price stable';
+    msg.textContent = 'Buyers and sellers balanced → price stays roughly the same';
+  }
+}
+updateDS();
+
+// PE
+function updatePE() {
+  const price = parseInt(document.getElementById('pe-price').value);
+  const eps = parseInt(document.getElementById('pe-eps').value);
+  document.getElementById('pe-price-val').textContent = '₹' + price;
+  document.getElementById('pe-eps-val').textContent = '₹' + eps;
+  const pe = Math.round(price / eps);
+  document.getElementById('pe-val').textContent = pe;
+  const cmt = document.getElementById('pe-comment');
+  if (pe < 10) { cmt.textContent = '🟢 Very cheap — possibly undervalued or company struggling'; cmt.style.color = '#16a34a'; }
+  else if (pe < 15) { cmt.textContent = '🟢 Cheap — good value territory'; cmt.style.color = '#16a34a'; }
+  else if (pe < 25) { cmt.textContent = '🟡 Fair valuation — market average'; cmt.style.color = '#d97706'; }
+  else if (pe < 40) { cmt.textContent = '🔴 Expensive — investors expect high future growth'; cmt.style.color = '#dc2626'; }
+  else { cmt.textContent = '🔴 Very expensive — priced for perfection, risky'; cmt.style.color = '#dc2626'; }
+}
+
+// CHARTS
+let chartsInit = false;
+function initCharts() {
+  if (chartsInit) return; chartsInit = true;
+
+  // Line chart
+  const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+  const data = [1200,1150,1320,1280,1400,1380,1520,1490,1610,1580];
+  new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Price (₹)',
+        data,
+        borderColor: '#3266ad',
+        backgroundColor: 'rgba(50,102,173,0.08)',
+        pointRadius: 3,
+        pointBackgroundColor: '#3266ad',
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { color: '#888', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { color: '#888', font: { size: 11 }, callback: v => '₹' + v } }
+      }
+    }
+  });
+
+  // Candle chart
+  const cCanvas = document.getElementById('candleChart');
+  const ctx = cCanvas.getContext('2d');
+  const W = cCanvas.offsetWidth || 580; cCanvas.width = W; cCanvas.height = 200;
+  const candles = [
+    {d:'May 15',o:1200,h:1250,l:1180,c:1230},
+    {d:'May 16',o:1230,h:1260,l:1210,c:1215},
+    {d:'May 17',o:1215,h:1290,l:1200,c:1280},
+    {d:'May 18',o:1280,h:1300,l:1250,c:1260},
+    {d:'May 19',o:1260,h:1320,l:1255,c:1310},
+    {d:'May 20',o:1310,h:1340,l:1280,c:1330},
+    {d:'May 21',o:1330,h:1350,l:1290,c:1295},
+    {d:'May 22',o:1295,h:1300,l:1260,c:1270},
+    {d:'May 23',o:1270,h:1310,l:1265,c:1305},
+    {d:'May 24',o:1305,h:1360,l:1300,c:1350},
+  ];
+  const allPrices = candles.flatMap(c => [c.h, c.l]);
+  const minP = Math.min(...allPrices) - 20;
+  const maxP = Math.max(...allPrices) + 20;
+  const padL = 50, padR = 10, padT = 15, padB = 30;
+  const plotW = W - padL - padR, plotH = 200 - padT - padB;
+  function py(p) { return padT + plotH - (p - minP) / (maxP - minP) * plotH; }
+  ctx.clearRect(0,0,W,200);
+  // Grid
+  ctx.strokeStyle = 'rgba(128,128,128,0.15)'; ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (plotH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+    const pVal = Math.round(maxP - (maxP - minP) * i / 4);
+    ctx.fillStyle = '#888'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('₹' + pVal, padL - 4, y + 3);
+  }
+  const cw = plotW / candles.length;
+  candles.forEach((c, i) => {
+    const x = padL + i * cw + cw / 2;
+    const up = c.c >= c.o;
+    const col = up ? '#16a34a' : '#dc2626';
+    ctx.strokeStyle = col; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, py(c.h)); ctx.lineTo(x, py(c.l)); ctx.stroke();
+    const bodyTop = py(Math.max(c.o, c.c));
+    const bodyBot = py(Math.min(c.o, c.c));
+    const bodyH = Math.max(bodyBot - bodyTop, 2);
+    ctx.fillStyle = col;
+    ctx.fillRect(x - cw * 0.3, bodyTop, cw * 0.6, bodyH);
+    // Date label
+    ctx.fillStyle = '#888'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(c.d.slice(-2), x, 200 - 8);
+  });
+
+  // Click handler
+  cCanvas.onclick = function(e) {
+    const rect = cCanvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const cidx = Math.floor((mx - padL) / cw);
+    if (cidx < 0 || cidx >= candles.length) return;
+    const c = candles[cidx];
+    const up = c.c >= c.o;
+    document.getElementById('candle-info').innerHTML =
+      `<strong>${c.d}</strong> &nbsp;|&nbsp; Open: <strong>₹${c.o}</strong> &nbsp; High: <strong>₹${c.h}</strong> &nbsp; Low: <strong>₹${c.l}</strong> &nbsp; Close: <strong style="color:${up?'#16a34a':'#dc2626'}">₹${c.c}</strong> &nbsp; ${up ? '🟢 Went up' : '🔴 Went down'}`;
+  };
+
+  // Volume chart
+  const vCanvas = document.getElementById('volChart');
+  const vctx = vCanvas.getContext('2d');
+  const vW = vCanvas.offsetWidth || 580; vCanvas.width = vW; vCanvas.height = 100;
+  const volumes = [45,32,68,41,55,72,38,29,61,84];
+  const maxV = Math.max(...volumes);
+  const vcw = vW / volumes.length;
+  volumes.forEach((v, i) => {
+    const up = candles[i].c >= candles[i].o;
+    vctx.fillStyle = up ? 'rgba(22,163,74,0.6)' : 'rgba(220,38,38,0.6)';
+    const bh = (v / maxV) * 80;
+    vctx.fillRect(i * vcw + vcw * 0.1, 100 - bh - 10, vcw * 0.8, bh);
+    vctx.fillStyle = '#888'; vctx.font = '9px sans-serif'; vctx.textAlign = 'center';
+    vctx.fillText(v + 'L', i * vcw + vcw / 2, 98);
+  });
+  vctx.fillStyle = '#888'; vctx.font = '10px sans-serif'; vctx.fillText('Volume (Lakhs)', 40, 12);
+}
+
+// CYCLE CHART
+let cycleInit = false;
+function initCycle() {
+  if (cycleInit) return; cycleInit = true;
+  new Chart(document.getElementById('cycleChart'), {
+    type: 'line',
+    data: {
+      labels: ['','Optimism','Excitement','Thrill','Euphoria','Anxiety','Denial','Fear','Panic','Capitulation','Despair','Depression','Hope','Relief','',''],
+      datasets: [{
+        data: [null,110,130,150,170,155,140,120,90,70,60,55,65,85,110,130],
+        borderColor: '#3266ad',
+        backgroundColor: 'rgba(50,102,173,0.06)',
+        pointRadius: (ctx) => ctx.dataIndex === 4 ? 6 : (ctx.dataIndex === 9 ? 6 : 3),
+        pointBackgroundColor: (ctx) => ctx.dataIndex === 4 ? '#dc2626' : (ctx.dataIndex === 9 ? '#16a34a' : '#3266ad'),
+        tension: 0.4, fill: true
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        annotation: {}
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#888', font: { size: 9 }, maxRotation: 45 } },
+        y: { display: false }
+      }
+    }
+  });
+}
+
+// QUIZ
+const questions = [
+  { q: "You buy 1 share of a company. What does that mean?", opts: ["You lent money to the company","You own a tiny piece of the company","You work for the company","You can fire the CEO"], ans: 1 },
+  { q: "A green candlestick means...", opts: ["The stock did nothing","The stock price fell that day","The stock price rose that day","Volume was high"], ans: 2 },
+  { q: "NIFTY 50 tracks...", opts: ["50 random companies","Top 50 companies on NSE","All companies in India","Only IT companies"], ans: 1 },
+  { q: "P/E ratio of 5 vs P/E of 50 — which is more expensive?", opts: ["P/E of 5","P/E of 50","Both are same","Depends on volume"], ans: 1 },
+  { q: "A bear market means...", opts: ["Bears are the investors","Prices have risen 20%+","Prices have fallen 20%+","Trading is paused"], ans: 2 },
+  { q: "What does 'volume' mean on a stock chart?", opts: ["Price per share","Number of shares traded that day","Company's revenue","How fast price moved"], ans: 1 }
+];
+let qIdx = 0, score = 0;
+function initQuiz() {
+  qIdx = 0; score = 0; renderQ();
+}
+function renderQ() {
+  const c = document.getElementById('quiz-container');
+  if (qIdx >= questions.length) {
+    c.innerHTML = `<div class="card" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:10px">${score >= 5 ? '🏆' : score >= 3 ? '👍' : '📚'}</div>
+      <h3>You scored ${score} / ${questions.length}</h3>
+      <p style="margin:10px 0">${score === 6 ? 'Perfect! You really understand stocks.' : score >= 4 ? 'Great job! Review the missed ones.' : 'Good start! Read through the guide again.'}</p>
+      <button onclick="sendPrompt('I scored ${score}/6 on the stock market quiz. Help me understand the concepts I got wrong.')" style="padding:8px 16px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;font-size:13px">Get help on missed questions ↗</button>
+      <button onclick="initQuiz()" style="margin-left:8px;padding:8px 16px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;font-size:13px">Try again</button>
+    </div>`; return;
+  }
+  const q = questions[qIdx];
+  const dots = questions.map((_,i) => `<div class="dot ${i < qIdx ? 'active' : ''} ${i === qIdx ? 'active' : ''}"></div>`).join('');
+  c.innerHTML = `
+    <div class="progress-dots">${dots}</div>
+    <div class="card">
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Question ${qIdx + 1} of ${questions.length}</div>
+      <h3 style="margin-bottom:14px">${q.q}</h3>
+      ${q.opts.map((o, i) => `<button class="quiz-opt" onclick="checkAns(${i})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+    </div>`;
+}
+function checkAns(i) {
+  const q = questions[qIdx];
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.ans) b.classList.add('correct');
+    else if (idx === i && i !== q.ans) b.classList.add('wrong');
+  });
+  if (i === q.ans) score++;
+  setTimeout(() => { qIdx++; renderQ(); }, 1200);
+}
+</script>
